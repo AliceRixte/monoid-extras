@@ -51,12 +51,19 @@ import           Data.Group
 --   It is a bit awkward dealing with instances of @Action@, since it
 --   is a multi-parameter type class but we can't add any functional
 --   dependencies---the relationship between monoids and the types on
---   which they act is truly many-to-many.  In practice, this library
+--   which they act is truly many-to-many. In practice, this fork
 --   has chosen to have instance selection for @Action@ driven by the
---   /first/ type parameter.  That is, you should never write an
---   instance of the form @Action m SomeType@ since it will overlap
+--   /second/ type parameter. That is, you should never write an
+--   instance of the form @Action SomeType m@ since it will overlap
 --   with instances of the form @Action SomeMonoid t@.  Newtype
 --   wrappers can be used to (awkwardly) get around this.
+--   
+--   This is the main difference between this fork and the original library 
+--   which has instance selection driven on the first parameter.
+--   What we loose here is the Maybe instance. What we gain is the functor 
+--   instance, as well as the possibility to declare instances of the form
+--   @instance Act m s => Act m (SomeConstructorOver s) @
+
 class Semigroup m => Action m s where
 
   -- | Convert a value of type @m@ to an action on @s@ values.
@@ -67,10 +74,9 @@ class Semigroup m => Action m s where
 instance Action () l where
   act () = id
 
--- | @Nothing@ acts as the identity; @Just m@ acts as @m@.
-instance Action m s => Action (Maybe m) s where
-  act Nothing  s = s
-  act (Just m) s = act m s
+-- This is the instance we get by prioritising second parameter instead of first
+instance (Functor f, Action m s) => Action m (f s) where
+  act m = fmap (act m)
 
 -- | @Endo@ acts by application.
 --
