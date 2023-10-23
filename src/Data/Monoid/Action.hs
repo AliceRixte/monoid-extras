@@ -70,11 +70,8 @@ class Semigroup m => Action m s where
   act :: m -> s -> s
   act = const id
 
--- | @()@ acts as the identity.
-instance Action () l where
-  act () = id
 
--- This is the instance we get by prioritising second parameter instead of first
+-- This is the instance we get by prioritising second parameter instead of
 instance (Functor f, Action m s) => Action m (f s) where
   act m = fmap (act m)
 
