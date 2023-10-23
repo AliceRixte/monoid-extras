@@ -71,10 +71,6 @@ class Semigroup m => Action m s where
   act = const id
 
 
--- This is the instance we get by prioritising second parameter instead of
-instance (Functor f, Action m s) => Action m (f s) where
-  act m = fmap (act m)
-
 -- | @Endo@ acts by application.
 --
 --   Note that in order for this instance to satisfy the @Action@
