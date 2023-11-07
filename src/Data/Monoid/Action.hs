@@ -57,10 +57,10 @@ import           Data.Group
 --   instance of the form @Action SomeType m@ since it will overlap
 --   with instances of the form @Action SomeMonoid t@.  Newtype
 --   wrappers can be used to (awkwardly) get around this.
---   
---   This is the main difference between this fork and the original library 
+--
+--   This is the main difference between this fork and the original library
 --   which has instance selection driven on the first parameter.
---   What we loose here is the Maybe instance. What we gain is the functor 
+--   What we loose here is the Maybe instance. What we gain is the functor
 --   instance, as well as the possibility to declare instances of the form
 --   @instance Act m s => Act m (SomeConstructorOver s) @
 
@@ -89,6 +89,10 @@ instance Num a => Action (Sum a) a where
 
 instance Num a => Action (Product a) a where
   a `act` n =  getProduct (a <> Product n)
+
+instance (Action m1 a1, Action m2 a2) => Action (m1,m2) (a1,a2) where
+  act (m1,m2) (a1,a2) = (m1 `act` a1, m2 `act` a2)
+
 
 -- | An action of a group is "free transitive", "regular", or a "torsor"
 --   iff it is invertible.
